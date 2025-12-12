@@ -18,8 +18,6 @@ impl ErrorInfo {
     }
 }
 
-/// Convert a pattern like "Property '{0}' does not exist on type '{1}'."
-/// into a regex that captures the placeholder values
 fn pattern_to_regex(pattern: &str) -> Regex {
     let mut regex_str = String::with_capacity(pattern.len() * 2);
     regex_str.push('^');
@@ -30,21 +28,17 @@ fn pattern_to_regex(pattern: &str) -> Regex {
     let bytes = pattern.as_bytes();
     while i < bytes.len() {
         if bytes[i] == b'{' {
-            // Escape everything before this placeholder
             regex_str.push_str(&regex::escape(&pattern[last_end..i]));
 
-            // Find the closing brace
             while i < bytes.len() && bytes[i] != b'}' {
                 i += 1;
             }
-            // Add a capture group for this placeholder
             regex_str.push_str("(.+?)");
             last_end = i + 1;
         }
         i += 1;
     }
 
-    // Escape any remaining literal text
     if last_end < pattern.len() {
         regex_str.push_str(&regex::escape(&pattern[last_end..]));
     }
@@ -53,7 +47,6 @@ fn pattern_to_regex(pattern: &str) -> Regex {
     Regex::new(&regex_str).unwrap()
 }
 
-/// Extract parameters from an error message using the pattern
 pub fn extract_params<'a>(pattern: &Regex, message: &'a str) -> Option<Vec<&'a str>> {
     pattern.captures(message).map(|caps| {
         caps.iter()
@@ -63,7 +56,6 @@ pub fn extract_params<'a>(pattern: &Regex, message: &'a str) -> Option<Vec<&'a s
     })
 }
 
-/// Substitute parameters into a message template
 pub fn substitute_params(template: &str, params: &[&str]) -> String {
     let mut result = template.to_string();
     for (i, param) in params.iter().enumerate() {
@@ -73,9 +65,6 @@ pub fn substitute_params(template: &str, params: &[&str]) -> String {
     result
 }
 
-// Error patterns and messages sourced from:
-// https://github.com/mattpocock/ts-error-translator
-// https://github.com/dmmulroy/ts-error-translator.nvim
 pub static ERRORS: LazyLock<HashMap<u32, ErrorInfo>> = LazyLock::new(|| {
     let mut m = HashMap::new();
 

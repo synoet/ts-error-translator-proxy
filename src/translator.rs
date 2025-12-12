@@ -27,7 +27,6 @@ pub fn translate_message<'a>(original: &'a str, code: Option<i64>, mode: Transla
         return Cow::Borrowed(original);
     };
 
-    // Extract parameters from the original message and substitute into improved message
     let translation = match extract_params(&info.pattern, original) {
         Some(params) => substitute_params(info.message, &params),
         None => info.message.to_string(),
