@@ -37,17 +37,17 @@ ts-error-translator-proxy [OPTIONS] [LSP_COMMAND] [LSP_ARGS...]
 
 | Option | Description |
 |--------|-------------|
-| `--replace` | Replace original error instead of appending translation |
+| `--append` | Append translation to original message instead of replacing |
 
 ```bash
-# Wrap vtsls (default)
+# Wrap vtsls (default - replaces original error)
 ts-error-translator-proxy
 
 # Wrap typescript-language-server
 ts-error-translator-proxy typescript-language-server --stdio
 
-# Replace mode
-ts-error-translator-proxy --replace vtsls --stdio
+# Append mode (keeps original error + adds translation)
+ts-error-translator-proxy --append vtsls --stdio
 ```
 
 ## Editor Configuration
