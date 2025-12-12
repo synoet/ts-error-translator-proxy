@@ -16,7 +16,7 @@ fn print_usage() {
     eprintln!("Usage: ts-error-translator-proxy [OPTIONS] [LSP_COMMAND] [LSP_ARGS...]");
     eprintln!();
     eprintln!("Options:");
-    eprintln!("  --replace    Replace original message instead of appending");
+    eprintln!("  --append     Append translation to original message instead of replacing");
     eprintln!("  --help       Show this help");
     eprintln!();
     eprintln!("Default LSP: vtsls --stdio");
@@ -26,7 +26,7 @@ fn print_usage() {
 async fn main() -> std::io::Result<()> {
     let args: Vec<String> = std::env::args().skip(1).collect();
 
-    let mut mode = TranslationMode::Append;
+    let mut mode = TranslationMode::Replace;
     let mut lsp_args: Vec<String> = Vec::new();
 
     for arg in &args {
@@ -35,7 +35,7 @@ async fn main() -> std::io::Result<()> {
                 print_usage();
                 return Ok(());
             }
-            "--replace" => mode = TranslationMode::Replace,
+            "--append" => mode = TranslationMode::Append,
             _ => lsp_args.push(arg.clone()),
         }
     }

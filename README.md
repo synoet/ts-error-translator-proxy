@@ -1,14 +1,13 @@
 # ts-error-translator-proxy
 
-An LSP proxy that translates TypeScript errors into human-readable explanations.
+An LSP proxy that translates TypeScript errors into human-readable explanations. Works with any editor.
 
 Based on [Matt Pocock's ts-error-translator](https://github.com/mattpocock/ts-error-translator). Inspired by [ts-error-translator.nvim](https://github.com/dmmulroy/ts-error-translator.nvim).
 
-```
-Property 'foo' does not exist on type 'Bar'.
-
-● This property doesn't exist on the type - check for typos or add the property to the type definition.
-```
+*Zed*
+<img width="1502" height="526" alt="CleanShot 2025-12-11 at 22 43 31@2x" src="https://github.com/user-attachments/assets/7f6ea8fa-660f-44ae-84d8-a25368a8d17a" />
+*Helix*
+<img width="1976" height="394" alt="CleanShot 2025-12-11 at 22 41 37@2x" src="https://github.com/user-attachments/assets/dc95c1a2-85d7-4463-a18b-8d61141f5b58" />
 
 ## Why a proxy?
 
