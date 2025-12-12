@@ -92,6 +92,10 @@ language-servers = ["vtsls-translated"]
 
 Neovim users should use [ts-error-translator.nvim](https://github.com/dmmulroy/ts-error-translator.nvim) instead.
 
+### Other Editors
+
+This should work with any editor that supports LSP. PRs with examples welcome.
+
 ## License
 
 MIT
