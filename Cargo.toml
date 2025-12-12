@@ -2,6 +2,11 @@
 name = "ts-error-translator-proxy"
 version = "0.1.0"
 edition = "2021"
+description = "An LSP proxy that translates TypeScript errors into human-readable explanations"
+license = "MIT"
+repository = "https://github.com/synoet/ts-error-translator-proxy"
+keywords = ["typescript", "lsp", "error-messages", "developer-experience"]
+categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
