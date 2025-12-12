@@ -1,6 +1,6 @@
 [package]
 name = "ts-error-translator-proxy"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "An LSP proxy that translates TypeScript errors into human-readable explanations"
 license = "MIT"
