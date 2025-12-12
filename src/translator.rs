@@ -1,4 +1,4 @@
-use crate::errors::ERRORS;
+use crate::errors::{extract_params, substitute_params, ERRORS};
 use crate::TranslationMode;
 use regex::Regex;
 use std::borrow::Cow;
@@ -14,10 +14,6 @@ pub fn extract_error_code(message: &str) -> Option<u32> {
         .and_then(|m| m.as_str().parse().ok())
 }
 
-pub fn lookup_translation(code: u32) -> Option<&'static str> {
-    ERRORS.get(&code).map(|info| info.translation)
-}
-
 pub fn translate_message<'a>(original: &'a str, code: Option<i64>, mode: TranslationMode) -> Cow<'a, str> {
     let error_code = code
         .map(|c| c as u32)
@@ -27,12 +23,18 @@ pub fn translate_message<'a>(original: &'a str, code: Option<i64>, mode: Transla
         return Cow::Borrowed(original);
     };
 
-    let Some(translation) = lookup_translation(error_code) else {
+    let Some(info) = ERRORS.get(&error_code) else {
         return Cow::Borrowed(original);
     };
 
+    // Extract parameters from the original message and substitute into improved message
+    let translation = match extract_params(&info.pattern, original) {
+        Some(params) => substitute_params(info.message, &params),
+        None => info.message.to_string(),
+    };
+
     Cow::Owned(match mode {
-        TranslationMode::Append => format!("{}\n\n● {}", original, translation),
+        TranslationMode::Append => format!("{}  ● {}", original, translation),
         TranslationMode::Replace => format!("● {}", translation),
     })
 }
@@ -42,19 +44,33 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_translate_append_preserves_original() {
+    fn test_translate_with_params() {
         let msg = "Property 'foo' does not exist on type 'Bar'.";
         let result = translate_message(msg, Some(2339), TranslationMode::Append);
         assert!(result.contains(msg));
-        assert!(result.contains("●"));
+        assert!(result.contains("You're trying to access 'foo' on an object that doesn't contain it."));
     }
 
     #[test]
-    fn test_translate_replace_removes_original() {
+    fn test_translate_replace_with_params() {
         let msg = "Property 'foo' does not exist on type 'Bar'.";
         let result = translate_message(msg, Some(2339), TranslationMode::Replace);
         assert!(!result.contains(msg));
-        assert!(result.contains("●"));
+        assert!(result.contains("You're trying to access 'foo' on an object that doesn't contain it."));
+    }
+
+    #[test]
+    fn test_translate_type_mismatch() {
+        let msg = "Type 'string' is not assignable to type 'number'.";
+        let result = translate_message(msg, Some(2322), TranslationMode::Append);
+        assert!(result.contains("I was expecting a type matching 'number' but instead you passed 'string'."));
+    }
+
+    #[test]
+    fn test_translate_argument_count() {
+        let msg = "Expected 2 arguments, but got 3.";
+        let result = translate_message(msg, Some(2554), TranslationMode::Append);
+        assert!(result.contains("This function needs 2 argument(s), but you're passing 3."));
     }
 
     #[test]
@@ -66,8 +82,22 @@ mod tests {
 
     #[test]
     fn test_extracts_code_from_message_text() {
-        let msg = "error TS2339: Property 'x' does not exist";
+        let msg = "error TS2339: Property 'x' does not exist on type 'Y'.";
         let result = translate_message(msg, None, TranslationMode::Append);
         assert!(result.contains("●"));
+    }
+
+    #[test]
+    fn test_cannot_find_name() {
+        let msg = "Cannot find name 'myVariable'.";
+        let result = translate_message(msg, Some(2304), TranslationMode::Append);
+        assert!(result.contains("I can't find 'myVariable' - it might not be imported or defined."));
+    }
+
+    #[test]
+    fn test_module_no_export() {
+        let msg = "Module './utils' has no exported member 'helper'.";
+        let result = translate_message(msg, Some(2305), TranslationMode::Append);
+        assert!(result.contains("'helper' is not exported from './utils'."));
     }
 }

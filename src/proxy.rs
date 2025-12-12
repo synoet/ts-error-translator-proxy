@@ -120,12 +120,12 @@ mod tests {
 
     #[test]
     fn test_translates_known_error() {
-        let input = serde_json::to_vec(&diagnostic_msg(2339, "Property 'x' does not exist")).unwrap();
+        let input = serde_json::to_vec(&diagnostic_msg(2339, "Property 'foo' does not exist on type 'Bar'.")).unwrap();
         let output = transform_if_diagnostics(&input, TranslationMode::Append);
         let msg = extract_message(&output);
 
-        assert!(msg.contains("Property 'x' does not exist"));
-        assert!(msg.contains("●"));
+        assert!(msg.contains("Property 'foo' does not exist on type 'Bar'."));
+        assert!(msg.contains("You're trying to access 'foo' on an object that doesn't contain it."));
     }
 
     #[test]
